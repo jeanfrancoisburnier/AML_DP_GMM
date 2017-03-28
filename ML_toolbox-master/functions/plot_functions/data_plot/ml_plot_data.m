@@ -37,6 +37,7 @@ label_font_size     = 14;
 points_size         = 50;
 weights             = [];
 plot_labels         = [];
+cmap                = [];
 plot_figure         = false; % if true a new figure will not be created.
 
 if exist('options','var')
@@ -46,9 +47,10 @@ if exist('options','var')
    if isfield(options,'points_size'),   points_size = options.points_size;  end
    if isfield(options,'class_names'),   class_names = options.class_names;  end
    if isfield(options,'weights'),       weights     = options.weights;      end
-   if isfield(options,'colors'),         colors     = options.colors;       end
-   if isfield(options,'plot_figure'),   plot_figure   = options.plot_figure;  end
-   if isfield(options,'plot_labels'),   plot_labels   = options.plot_labels;  end
+   if isfield(options,'colors'),        colors      = options.colors;       end
+   if isfield(options,'cmap'),          cmap        = options.cmap;       end
+   if isfield(options,'plot_figure'),   plot_figure = options.plot_figure;  end
+   if isfield(options,'plot_labels'),   plot_labels = options.plot_labels;  end
 end
 
 if ~isempty(labels) && isempty(colors)
@@ -69,7 +71,7 @@ end
 if plot_figure == true
     handle = [];
 else
-    handle = figure;
+    handle = figure('Color',[1 1 1]);
 end
 
 % if sum(labels < 1) ~= 0 % some labels are negative
@@ -85,12 +87,13 @@ end
 set(gca,'FontSize',14);
 hold on;
 
+
 if (is_eig)
     
-    if ~isempty(labels)
+    if ~isempty(labels)       
         gplotmatrix(X,[],labels,colors,'.',10);
-        h = findobj('Tag','legend');
-        set(h, 'String',class_names);
+%         h = findobj('Tag','legend');
+%         fset(h, 'String',class_names);
     else
         gplotmatrix(X,[],ones(size(X,1),1));
     end
@@ -115,6 +118,11 @@ else
             end
         elseif ~isempty(colors)
             scatter(X(:,1),X(:,2),points_size,colors,'filled','MarkerEdgeColor', [0 0 0]);
+
+        elseif ~isempty(cmap)
+           scatter(X(:,1), X(:,2), points_size, cmap,'filled','MarkerEdgeColor', [0 0 0]);
+           colormap(jet)
+           colorbar            
         else
             scatter(X(:,1),X(:,2),points_size,'filled','MarkerEdgeColor', [0 0 0]);
         end
@@ -127,6 +135,10 @@ else
                 idx   = labels == id_labels(i);
                 scatter3(X(idx,1),X(idx,2),X(idx,3),points_size(idx),'filled','MarkerFaceColor',colors(i,:),'MarkerEdgeColor', [0 0 0]);
             end
+        elseif ~isempty(cmap)
+           scatter3(X(:,1), X(:,2), X(:,3), points_size, cmap,'filled','MarkerEdgeColor', [0 0 0]);
+           colormap(jet)
+           colorbar
         else
             scatter3(X(:,1),X(:,2),X(:,3),points_size,'filled');
         end
@@ -136,55 +148,72 @@ else
             gplotmatrix(X,[],labels,colors,'.',12);
             h = findobj('Tag','legend');
             set(h, 'String',class_names);
-        else
+        elseif ~isempty(cmap)
+            gplotmatrix(X,[],labels,cmap,'.',12);
+        else                
             gplotmatrix(X,[],ones(size(X,1),1));
         end        
-    end    
+    end
+    
+    if length(unique(labels))>1
+    class_names = {};
+    labelIds = unique(labels);
+    for i=1:length(labelIds)
+        class_names = [class_names strcat('Class',num2str(labelIds(i)))];
+    end
+    legend(class_names);
+end
+
 end   
 
-if ~isempty(class_names) && D < 4 && is_eig == false
-   legend(class_names{:},'FontName','Times'); 
-end
+% if ~isempty(class_names) && D < 4 && is_eig == false
+%    legend(class_names{:},'FontName','Times'); 
+% end
 
 hold off;
 box on; grid on;
 %% Set title 
 
 if plot_figure==false, 
-    title(title_name, 'Interpreter','tex','FontName','Times', 'FontWeight','Light'); 
+    title({title_name}, 'Interpreter','Latex','FontName','Times', 'FontWeight','Light'); 
 end
 
 %% Set the labels
 if is_eig == true && D <= 3
         if D < 2
-            xlabel('eig1','FontSize',label_font_size);
+            xlabel('$V_1$', 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
         end
         if D < 3
-            xlabel('eig2','FontSize',label_font_size);
-            ylabel('eig1','FontSize',label_font_size);
+            xlabel('$V_2$', 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
+            ylabel('$V_1$', 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
         end
         if D == 3
-%             zlabel('eig3','FontSize',label_font_size);
+            zlabel('$V_3$', 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
         end
 elseif D <= 3
     
         if isempty(plot_labels)
             if D >= 1
-                xlabel('x','FontSize',label_font_size);
+                xlabel({'$x_1$'}, 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
             end
             if D >= 2
-                ylabel('y','FontSize',label_font_size);
+                ylabel({'$x_2$'}, 'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
             end
             if D == 3
-                zlabel('z','FontSize',label_font_size);
+                zlabel({'$x_3$'} ,'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
             end
         else
-            xlabel(plot_labels{1},'FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
-            ylabel(plot_labels{2},'FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
-            zlabel(plot_labels{3},'FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
+            if D >= 1
+                xlabel(plot_labels{1},'Interpreter','Latex', 'FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
+            end
+            if D >= 2
+                ylabel(plot_labels{2},'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
+            end
+            if D == 3
+                zlabel(plot_labels{3},'Interpreter','Latex','FontSize',label_font_size,'FontName','Times', 'FontWeight','Light');
+            end
         end        
 end
-
 
 if D ==3
     view(3)

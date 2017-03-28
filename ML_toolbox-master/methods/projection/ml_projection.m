@@ -47,18 +47,25 @@ switch options.method_name
     case 'KPCA'
         
         [kernel,kpar]                = sanitise_kernel_input(options);
-
-        if length(kpar) == 1
-            [projectedData, mapping] = compute_mapping(X, 'KPCA',nbDimensions,kernel,kpar(1));
-        else
-            [projectedData, mapping] = compute_mapping(X, 'KPCA',nbDimensions,kernel,kpar(1),kpar(2));    
+        norm_K = true;
+        
+        if isfield(options,'norm_K')
+            if (options.norm_K == false)
+            display('Kernel (Gram) matrix will NOT be normalized!');
+            norm_K = false;
+            end            
         end
-
-         % Lapalace 
+        
+        if length(kpar) == 1
+            [projectedData, mapping] = compute_mapping(X, 'KPCA',nbDimensions,norm_K,kernel,kpar(1));
+        else
+            [projectedData, mapping] = compute_mapping(X, 'KPCA',nbDimensions,norm_K,kernel,kpar(1),kpar(2));    
+        end
         
     case {'Isomap'}
 	neighbors = options.neighbors;
     [projectedData, mapping] = compute_mapping(X, options.method_name, nbDimensions, neighbors);
+
     
     case {'Laplacian'}
 	neighbors = options.neighbors;
