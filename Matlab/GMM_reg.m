@@ -7,8 +7,10 @@ close all
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 addpath('matlab_function');
+addpath('../Datasets');
+addpath(genpath('ML_toolbox-master'));
 
-load('Datasets/2D-GMM.mat')
+load('2D-GMM.mat')
 
 % Visualize Dataset
 options.class_names = {};
