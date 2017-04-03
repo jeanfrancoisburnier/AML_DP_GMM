@@ -6,6 +6,8 @@ close all
 %                               LOAD DATASET                              % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+addpath('matlab_function');
+
 load('Datasets/2D-GMM.mat')
 
 % Visualize Dataset
