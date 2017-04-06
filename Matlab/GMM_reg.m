@@ -7,10 +7,11 @@ close all
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 addpath('matlab_function');
-addpath('../Datasets');
+addpath('Datasets');
 addpath(genpath('ML_toolbox-master'));
 
-load('2D-GMM.mat')
+%load('2D-GMM.mat')
+load('GMR_data.mat')
 
 % Visualize Dataset
 options.class_names = {};
@@ -35,7 +36,7 @@ gmm_eval(X, K_range, repeats, cov_type);
 %                 Choice of the GMM-hyperparameters                       %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % From the previous graph choose the best value of K
-K = 3; cov_type = 'full';  plot_iter = 0;
+K = 4; cov_type = 'full';  plot_iter = 0;
 
 % Run MY GMM-EM function, estimates the paramaters by maximizing loglik
 tic;
@@ -49,3 +50,9 @@ ml_plot_gmm_pdf(X, Priors, Mu, Sigma)
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Regression                                    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+in = 1; out = 2;
+
+x = linspace(-30,40,300);
+[y_est, Sigma_y] = ml_gmr(Priors, Mu, Sigma, x, in, out);
+
+ml_plot_gmr_function(x', y_est, Sigma_y,'var_scale');
