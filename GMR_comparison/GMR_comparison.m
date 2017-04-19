@@ -32,7 +32,7 @@ X = [X, y_noisy]';
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          define training set                            % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-p = 0.66; %define training/test ratio
+p = 0.75; %define training/test ratio
 data_size = size(X);
 select = randsrc(1,data_size(2),[0 1; (1-p) p]);
 X_temp = zeros(data_size(1),data_size(2));
@@ -59,7 +59,7 @@ plot_mixture(X_train, ones(1,size(X_train,2)))
 
 % run the CRP sampler to generate the posterior distribution over model 
 % parameters
-[class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(X_train, 200, 10);
+[class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(X_train, 200, 2);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                             DP_GMR Gaussians                            % 
@@ -111,7 +111,8 @@ end
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Regression                                    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-in = ones(1, data_size(1)-1); out = data_size(1);
+in = 1: data_size(1)-1; 
+out = data_size(1);
 
 %x = linspace(min(X(1,:)),max(X(1,:)),300);
 x = X(1:end-1,:);
