@@ -42,7 +42,7 @@ K = 3; cov_type = 'iso';  plot_iter = 0;
 
 % Run MY GMM-EM function, estimates the paramaters by maximizing loglik
 tic;
-[Priors, Mu, Sigma] = ml_gmmEM(X, K);
+[Priors, Mu, Sigma] = ml_gmmEM(X, K, init_type);
 toc;
 
 % Visualize GMM pdf from learnt parameters
