@@ -33,21 +33,30 @@ X = [X, y_noisy]';
 %                          define training set                            % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 p = 0.75; %define training/test ratio
-data_size = size(X);
-select = randsrc(1,data_size(2),[0 1; (1-p) p]);
-X_temp = zeros(data_size(1),data_size(2));
-X_train = zeros(data_size(1),sum(select));
-X_test = zeros(data_size(1),data_size(2)-sum(select));
-for i = 1:data_size(1)
-    X_temp(i,:) = X(i,:).* select;
-    temp = X_temp(i,:);
-    temp(temp == 0) = [];
-    X_train(i,:) = temp;
-    X_temp(i,:) = X(i,:).* (~select);
-    temp = X_temp(i,:);
-    temp(temp == 0) = [];
-    X_test(i,:) = temp;
-end
+%data_size = size(X);
+%select = randsrc(1,data_size(2),[0 1; (1-p) p]);
+
+%X_temp = zeros(data_size(1),data_size(2));
+%X_train = zeros(data_size(1),sum(select));
+%X_test = zeros(data_size(1),data_size(2)-sum(select));
+%for i = 1:data_size(1)
+%    X_temp(i,:) = X(i,:).* select;
+%    temp = X_temp(i,:);
+%    temp(temp == 0) = [];
+%    X_train(i,:) = temp;
+%    X_temp(i,:) = X(i,:).* (~select);
+%    temp = X_temp(i,:);
+%    temp(temp == 0) = [];
+%    X_test(i,:) = temp;
+%end
+
+   % determine how many elements is ten percent
+   numelements = round(p*length(a));
+   % get the randomly-selected indices
+   indices = randperm(data_size(1));
+   % choose the subset of a you want
+   X_train = X(indices(1:numelements));
+   X_test = X(indices(numelements+1:end));
 
 % show the training data
 figure(2)
