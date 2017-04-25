@@ -25,15 +25,15 @@ h0 = ml_plot_data(X',options);hold on;
 %                               LOAD DATASET                              % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[X,y,y_noisy] = load_regression_datasets('2d-cossine');
+[X,y,y_noisy] = load_regression_datasets('1d-sine');
 
 X = [X, y_noisy]';
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          define training set                            % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-p = 0.75; %define training/test ratio
-%data_size = size(X);
+p = 0.5; %define training/test ratio
+data_size = size(X);
 %select = randsrc(1,data_size(2),[0 1; (1-p) p]);
 
 %X_temp = zeros(data_size(1),data_size(2));
@@ -51,12 +51,12 @@ p = 0.75; %define training/test ratio
 %end
 
    % determine how many elements is ten percent
-   numelements = round(p*length(a));
+   numelements = round(p*data_size(2));
    % get the randomly-selected indices
-   indices = randperm(data_size(1));
+   indices = randperm(data_size(2));
    % choose the subset of a you want
-   X_train = X(indices(1:numelements));
-   X_test = X(indices(numelements+1:end));
+   X_train = X(:,indices(1:numelements));
+   X_test = X(:,indices(numelements+1:end));
 
 % show the training data
 figure(2)
@@ -68,7 +68,7 @@ plot_mixture(X_train, ones(1,size(X_train,2)))
 
 % run the CRP sampler to generate the posterior distribution over model 
 % parameters
-[class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(X_train, 200, 2);
+[class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(X_train, 200,8);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                             DP_GMR Gaussians                            % 

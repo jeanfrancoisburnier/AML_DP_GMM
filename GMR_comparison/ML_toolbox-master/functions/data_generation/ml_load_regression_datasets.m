@@ -71,7 +71,7 @@ switch dataset_type
         
         % Set parameters for sinc function data
         nbSamples = 200;
-        epsilon   = 0.075;
+        epsilon   = 0.000;
         x_limits  = [-5, 5];
         
         % Generate True function and data
