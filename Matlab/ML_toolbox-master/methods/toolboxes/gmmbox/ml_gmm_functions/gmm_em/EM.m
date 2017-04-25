@@ -1,4 +1,4 @@
-function [Priors, Mu, Sigma, nbStep, loglik] = EM(Data, Priors0, Mu0, Sigma0)
+function [Priors, Mu, Sigma, nbStep, loglik] = EM(Data, Priors0, Mu0, Sigma0, cov_type)
 %
 % This function learns the parameters of a Gaussian Mixture Model 
 % (GMM) using a recursive Expectation-Maximization (EM) algorithm, starting 
@@ -82,6 +82,15 @@ while 1 && num_iter <= max_iter
     Data_tmp2b = repmat(reshape(Data_tmp1,[1 nbVar nbData]), [nbVar 1 1]);
     Data_tmp2c = repmat(reshape(Pix(:,i),[1 1 nbData]), [nbVar nbVar 1]);
     Sigma(:,:,i) = sum(Data_tmp2a.*Data_tmp2b.*Data_tmp2c, 3) / E(i);
+    
+    switch cov_type
+        case 'diag'
+            Sigma(:,:,i) = diag(diag(Sigma(:,:,i)));
+        case 'iso'
+            D = eig(Sigma(:,:,i));
+            eig_val = max(D);
+            Sigma(:,:,i) = eig_val*eye(length(Sigma(:,:,i)));
+    end
     %% Add a tiny variance to avoid numerical instability
     Sigma(:,:,i) = Sigma(:,:,i) + 1E-5.*diag(ones(nbVar,1)); %%%note
   end
