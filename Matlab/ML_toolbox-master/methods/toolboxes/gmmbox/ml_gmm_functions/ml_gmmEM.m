@@ -1,4 +1,4 @@
-function [  Priors, Mu, Sigma ] = ml_gmmEM(X, K, init_type)
+function [  Priors, Mu, Sigma ] = ml_gmmEM(X, K, init_type, cov_type)
 %MY_GMMEM Computes maximum likelihood estimate of the parameters for the 
 % given GMM using the EM algorithm and initial parameters
 %   input------------------------------------------------------------------
@@ -19,7 +19,7 @@ function [  Priors, Mu, Sigma ] = ml_gmmEM(X, K, init_type)
 fprintf('Estimating Paramaters of GMM learned through EM with %d Gaussian functions.\n', K);
 tic;
 [Priors_0, Mu_0, Sigma_0] = EM_init_kmeans(X, K, init_type);
-[Priors, Mu, Sigma] = EM(X, Priors_0, Mu_0, Sigma_0);
+[Priors, Mu, Sigma] = EM(X, Priors_0, Mu_0, Sigma_0, cov_type);
 toc;
 end
 

@@ -27,7 +27,7 @@ for i=1:length(K_range)
     % Repeat k-means X times
     AIC_ = zeros(1, repeats); BIC_= zeros(1, repeats);     
     for ii = 1:repeats
-        [ Priors, Mu, Sigma ] = ml_gmmEM(X, K,init_type);
+        [ Priors, Mu, Sigma ] = ml_gmmEM(X, K,init_type, cov_type);
         AIC_(ii) = ml_gmm_aic(X, Priors,Mu,Sigma,cov_type);
         BIC_(ii) = ml_gmm_bic(X,Priors,Mu,Sigma,cov_type);
     end 
