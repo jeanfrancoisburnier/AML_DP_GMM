@@ -46,7 +46,7 @@ if(nargin < 2)
 end
 
 % show trace plots and current clustering (2D)?
-GRAPHICS = 1;
+GRAPHICS = 0;
 
 % set normal inverse wishart hyper parameters
 if(nargin < 5)
@@ -315,7 +315,7 @@ for(sweep = 2:num_sweeps)
         break_counter = 0;
     else
         break_counter = break_counter + 1;
-        if break_counter >= 500
+        if break_counter >= 100
             alpha_record(sweep+1:end) = [];
             class_id(:,sweep+1:end) = [];
             covariance_record(sweep+1:end) = [];
