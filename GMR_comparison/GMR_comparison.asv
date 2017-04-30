@@ -1,34 +1,35 @@
 clc
 clearvars
 close all
-data_source = 1;
+data_source = 0;
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               LOAD DATASET                              % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if data_source == 1
-addpath('matlab_function');
-addpath('Datasets');
-addpath(genpath('ML_toolbox-master'));
+    addpath('matlab_function');
+    addpath('Datasets');
+    addpath(genpath('ML_toolbox-master'));
 
-%load('2D-GMM.mat')
-load('2D-GMM.mat')
+    %load('2D-GMM.mat')
+    load('2D-GMM.mat')
 
-% Visualize Dataset
-options.class_names = {};
-options.title       = '2D Concentric Circles Dataset';
-%options.labels       = y;
+    % Visualize Dataset
+    options.class_names = {};
+    options.title       = '2D Concentric Circles Dataset';
+    %options.labels       = y;
 
-if exist('h0','var') && isvalid(h0), delete(h0);end
-h0 = ml_plot_data(X',options);hold on;
+    if exist('h0','var') && isvalid(h0), delete(h0);end
+    h0 = ml_plot_data(X',options);hold on;
+end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               LOAD DATASET                              % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if data_source == 0
+    [X,y,y_noisy] = load_regression_datasets('1d-sine');
 
-[X,y,y_noisy] = load_regression_datasets('1d-sine');
-
-X = [X, y_noisy]';
-
+    X = [X, y_noisy]';
+end
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          define training set                            % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -68,7 +69,7 @@ plot_mixture(X_train, ones(1,size(X_train,2)))
 
 % run the CRP sampler to generate the posterior distribution over model 
 % parameters
-t1 = tic;
+tic;
 [class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(X_train, 200,8);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -95,8 +96,8 @@ for i = 1:K_record(end)-1
         Sigma(:,:,i) = Sigma_DP(:,:,i);
     end
 end
-t2 = toc;
-time = t2 - t1
+
+time = toc
 if (data_size(1) == 2)
     ml_plot_gmm_pdf(X, Priors, Mu, Sigma)
 end
@@ -128,5 +129,9 @@ out = data_size(1);
 %x = linspace(min(X(1,:)),max(X(1,:)),300);
 x = X(1:end-1,:);
 [y_est, Sigma_y] = ml_gmr(Priors, Mu, Sigma, x, in, out);
-
+if data_source == 0
+    diff_y = var(y_est-y)
+else
+    diff_y
+end
 ml_plot_gmr_function(x', y_est, Sigma_y,'var_scale');

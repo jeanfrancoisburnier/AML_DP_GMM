@@ -129,5 +129,9 @@ out = data_size(1);
 %x = linspace(min(X(1,:)),max(X(1,:)),300);
 x = X(1:end-1,:);
 [y_est, Sigma_y] = ml_gmr(Priors, Mu, Sigma, x, in, out);
-
+if data_source == 0
+    error = var(y_est-y)
+else
+    error = var(y_est-y)
+end
 ml_plot_gmr_function(x', y_est, Sigma_y,'var_scale');
