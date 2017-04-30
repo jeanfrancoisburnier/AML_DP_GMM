@@ -21,6 +21,36 @@ options.title       = '2D Concentric Circles Dataset';
 if exist('h0','var') && isvalid(h0), delete(h0);end
 h0 = ml_plot_data(X',options);hold on;
 
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                               LOAD DATASET                              % 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if data_source == 0
+    [X,y,y_noisy] = load_regression_datasets('1d-sinc');
+
+    X = [X, y_noisy]';
+end
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                          define training set                            % 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+p = 0.75; %define training/test ratio
+data_size = size(X);
+   % determine how many elements is ten percent
+   numelements = round(p*data_size(2));
+   % get the randomly-selected indices
+   indices = randperm(data_size(2));
+   % choose the subset of a you want
+   X_train = X(:,indices(1:numelements));
+   X_test = X(:,indices(numelements+1:end));
+   if data_source == 0
+       y_test = y(indices(numelements+1:end));
+   end
+
+% show the training data
+figure(2)
+plot_mixture(X_train, ones(1,size(X_train,2)))
+
+
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                   Testing dfferent K on gmm_eval.m                      %
