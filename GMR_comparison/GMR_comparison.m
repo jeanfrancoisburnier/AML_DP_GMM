@@ -2,6 +2,9 @@ clc
 clearvars
 close all
 data_source = 0;
+n_loop = 10;
+time = zeros(n_loop,1);
+error = zeros(n_loop,1);
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               LOAD DATASET                              % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -26,7 +29,7 @@ end
 %                               LOAD DATASET                              % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if data_source == 0
-    [X,y,y_noisy] = load_regression_datasets('1d-sinc');
+    [X,y,y_noisy] = load_regression_datasets('1d-sine');
 
     X = [X, y_noisy]';
 end
@@ -53,58 +56,64 @@ plot_mixture(X_train, ones(1,size(X_train,2)))
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                 DP_GMM                                  % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for l = 1:n_loop
+    %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                                 DP_GMM                                  % 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% run the CRP sampler to generate the posterior distribution over model 
-% parameters
-tic;
-[class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(X_train, 200,10);
+    % run the CRP sampler to generate the posterior distribution over model 
+    % parameters
+    tic;
+    [class_id, mean_record, covariance_record, K_record, lP_record, alpha_record] = sampler(X_train, 200,1);
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                             DP_GMR Gaussians                            % 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                             DP_GMR Gaussians                            % 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Priors = zeros(1, K_record(end)-1);
-Mu = zeros(data_size(1), K_record(end)-1);
-Sigma = zeros(data_size(1),data_size(1), K_record(end)-1);
-Mu_DP = cell2mat(mean_record(end));
-Sigma_DP = cell2mat(covariance_record(end));
-for i = 1:K_record(end)-1
-    class = class_id(:,end);
-    X_k = X_train(:,class == i);
-    X_k_c = zeros(data_size(1),size(X_k,2));
-    [i,length(X_k)]
-    Priors(i) = size(X_k,2)/size(X_train,2);
-    Mu(:,i) = mean(X_k,2);
-    if (size(X_k,2) > 2);
-        for j = 1:data_size(1)
-            X_k_c(j,:) = X_k(j,:) - Mu(j,i);
+    Priors = zeros(1, K_record(end)-1);
+    Mu = zeros(data_size(1), K_record(end)-1);
+    Sigma = zeros(data_size(1),data_size(1), K_record(end)-1);
+    Mu_DP = cell2mat(mean_record(end));
+    Sigma_DP = cell2mat(covariance_record(end));
+    for i = 1:K_record(end)-1
+        class = class_id(:,end);
+        X_k = X_train(:,class == i);
+        X_k_c = zeros(data_size(1),size(X_k,2));
+        Priors(i) = size(X_k,2)/size(X_train,2);
+        Mu(:,i) = mean(X_k,2);
+        if (size(X_k,2) > 2);
+            for j = 1:data_size(1)
+                X_k_c(j,:) = X_k(j,:) - Mu(j,i);
+            end
+            Sigma(:,:,i) = X_k_c*X_k_c'/(size(X_k,2)-1);
+        else
+            Sigma(:,:,i) = Sigma_DP(:,:,i);
         end
-        Sigma(:,:,i) = X_k_c*X_k_c'/(size(X_k,2)-1);
-    else
-        Sigma(:,:,i) = Sigma_DP(:,:,i);
     end
+
+    time(l) = toc;
+    if (data_size(1) == 2)
+        %ml_plot_gmm_pdf(X, Priors, Mu, Sigma)
+    end
+
+    %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                           Regression                                    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    in = 1: data_size(1)-1; 
+    out = data_size(1);
+
+    %x = linspace(min(X(1,:)),max(X(1,:)),300);
+    x = X(1:end-1,:);
+    [y_est, Sigma_y] = ml_gmr(Priors, Mu, Sigma, x, in, out);
+
+    [y_est_test, Sigma_y_test] = ml_gmr(Priors, Mu, Sigma, X_test(1:end-1,:), in, out);
+
+    if data_source == 0
+        error(l) = var(y_est_test'-y_test);
+    else
+        error(l) = var(y_est_test'-X_test(end,:));
+    end
+    %ml_plot_gmr_function(x', y_est, Sigma_y,'var_scale');
 end
-
-time = toc
-if (data_size(1) == 2)
-    ml_plot_gmm_pdf(X, Priors, Mu, Sigma)
-end
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                           Regression                                    %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-in = 1: data_size(1)-1; 
-out = data_size(1);
-
-%x = linspace(min(X(1,:)),max(X(1,:)),300);
-x = X(1:end-1,:);
-[y_est, Sigma_y] = ml_gmr(Priors, Mu, Sigma, x, in, out);
-
-[y_est_test, Sigma_y_test] = ml_gmr(Priors, Mu, Sigma, X_test(1:end-1,:), in, out);
-
-if data_source == 0
-    error = var(y_est_test'-y_test)
-else
-    error = var(y_est_test'-X_test(end,:))
-end
-ml_plot_gmr_function(x', y_est, Sigma_y,'var_scale');
+avg_time = mean(time)
+avg_error = mean(error)
