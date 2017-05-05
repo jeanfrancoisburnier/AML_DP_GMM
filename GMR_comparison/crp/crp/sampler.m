@@ -46,7 +46,7 @@ if(nargin < 2)
 end
 
 % show trace plots and current clustering (2D)?
-GRAPHICS = 1;
+GRAPHICS = 0;
 
 % set normal inverse wishart hyper parameters
 if(nargin < 5)
@@ -94,6 +94,9 @@ covariance_record{1}(:,:,1) = eye(size(y,1));
 inv_covariance_record{1} = zeros(D,D,1);
 inv_covariance_record{1}(:,:,1) = eye(size(y,1));
 
+max_lP = 0;
+break_counter = 0;
+
 % compute the log likelihood
 lp = lp_crp(class_id(:,1),alpha);
 for(k=1:K_plus)
@@ -114,7 +117,7 @@ lP_record(1) = lp;
 
 % run the Gibbs sampler
 for(sweep = 2:num_sweeps)
-    disp(['Sweep ' num2str(sweep) '/' num2str(num_sweeps)])
+    %disp(['Sweep ' num2str(sweep) '/' num2str(num_sweeps)])
     %     phi{sweep} = phi{sweep-1};
     mean_record{sweep} = mean_record{sweep-1};
     covariance_record{sweep} = covariance_record{sweep-1};
@@ -307,6 +310,22 @@ for(sweep = 2:num_sweeps)
     K_record(sweep) = length(temp);
     alpha_record(sweep) = alpha;
     lP_record(sweep) = lp;
+    if (lP_record(sweep) > max_lP)
+        max_lP = lP_record(sweep);
+        break_counter = 0;
+    else
+        break_counter = break_counter + 1;
+        if break_counter >= 100
+            alpha_record(sweep+1:end) = [];
+            class_id(:,sweep+1:end) = [];
+            covariance_record(sweep+1:end) = [];
+            K_record(sweep+1:end) = [];
+            lP_record(sweep+1:end) = [];
+            mean_record(sweep+1:end) = [];
+            break
+        end
+    end
+    
     if(GRAPHICS)
         figure(3)
         subplot(3,1,1)
