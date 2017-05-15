@@ -31,12 +31,12 @@ switch dataset_type
     case '1d-sine'
         
         nbSamples = 150;
-        epsilon   = 0.15;
-        x_limits  = [-100, 100];
+        epsilon   = 0.05;
+        x_limits  = [-250, 250];
         
         % Generate True function and data
         X         = linspace(x_limits(1),x_limits(2),nbSamples);
-        y_true    = sin(X*0.05);
+        y_true    = sin(X*0.02);
         y         = y_true + normrnd(0,epsilon,1,nbSamples);
         
         
@@ -63,7 +63,7 @@ switch dataset_type
         
         % Set parameters for sinc function data
         nbSamples = 200;
-        epsilon   = 0.075;
+        epsilon   = 0.005;
         x_limits  = [-5, 5];
         
         % Generate True function and data

@@ -71,7 +71,7 @@ if(nargin <4)
 end
 
 % initialize
-alpha = 1;
+alpha = a_0;
 N = size(training_data,2);
 y = training_data;
 % phi = cell(num_sweeps,1);
@@ -315,7 +315,7 @@ for(sweep = 2:num_sweeps)
         break_counter = 0;
     else
         break_counter = break_counter + 1;
-        if break_counter >= 500
+        if break_counter >= 100
             alpha_record(sweep+1:end) = [];
             class_id(:,sweep+1:end) = [];
             covariance_record(sweep+1:end) = [];
