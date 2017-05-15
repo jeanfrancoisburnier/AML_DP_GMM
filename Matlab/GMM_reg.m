@@ -10,8 +10,10 @@ addpath('matlab_function');
 addpath('Datasets');
 addpath(genpath('ML_toolbox-master'));
 
-%load('2D-GMM.mat')
-load('GMR_data.mat')
+load('2D-GMM.mat')
+[X,y,y_noisy]=load_regression_datasets('1d-sine');
+X = [X , y_noisy]';
+%load('s.mat')
 
 % Visualize Dataset
 options.class_names = {};
@@ -27,20 +29,20 @@ h0 = ml_plot_data(X',options);hold on;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % K-means Evaluation Parameters
-K_range=[1:10]; cov_type = 'full'; repeats = 10;
+K_range=[1:10]; cov_type = 'iso'; repeats = 10; init_type = 'uniform'
 
 % Evaluation of gmm-em in order to find the optimal k
-gmm_eval(X, K_range, repeats, cov_type);
+gmm_eval(X, K_range, repeats, cov_type,init_type);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                 Choice of the GMM-hyperparameters                       %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % From the previous graph choose the best value of K
-K = 4; cov_type = 'full';  plot_iter = 0;
+K = 3; cov_type = 'iso';  plot_iter = 0;
 
 % Run MY GMM-EM function, estimates the paramaters by maximizing loglik
 tic;
-[Priors, Mu, Sigma] = ml_gmmEM(X, K);
+[Priors, Mu, Sigma] = ml_gmmEM(X, K, init_type);
 toc;
 
 % Visualize GMM pdf from learnt parameters
